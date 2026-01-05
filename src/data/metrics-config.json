@@ -1,0 +1,35 @@
+{
+  "categories": [
+    {
+      "id": "ekonomi",
+      "name": "Ekonomi",
+      "metrics": [
+        { "id": "intakter", "name": "Intäkter", "unit": "KSEK", "aggregation": "sum", "format": "currency" },
+        { "id": "personal", "name": "Personalkostnader", "unit": "KSEK", "aggregation": "sum", "format": "currency" },
+        { "id": "lokaler", "name": "Lokalkostnader", "unit": "KSEK", "aggregation": "sum", "format": "currency" },
+        { "id": "material", "name": "Material & Varor", "unit": "KSEK", "aggregation": "sum", "format": "currency" },
+        { "id": "externa", "name": "Externa tjänster", "unit": "KSEK", "aggregation": "sum", "format": "currency" },
+        { "id": "ovrigt", "name": "Övriga kostnader", "unit": "KSEK", "aggregation": "sum", "format": "currency" }
+      ]
+    },
+    {
+      "id": "personal_metrics",
+      "name": "Personal",
+      "metrics": [
+        { "id": "antal_anstallda", "name": "Antal anställda", "unit": "st", "aggregation": "sum", "format": "number" },
+        { "id": "personalomsattning", "name": "Personalomsättning", "unit": "%", "aggregation": "weighted_avg", "format": "percent" },
+        { "id": "sjukfranvaro", "name": "Sjukfrånvaro", "unit": "%", "aggregation": "weighted_avg", "format": "percent" }
+      ]
+    },
+    {
+      "id": "produktion",
+      "name": "Produktion & Leverans",
+      "metrics": [
+        { "id": "arenden", "name": "Hanterade ärenden", "unit": "st", "aggregation": "sum", "format": "number" },
+        { "id": "leveranstid", "name": "Leveranstid (snitt)", "unit": "dagar", "aggregation": "weighted_avg", "format": "number" },
+        { "id": "kundnojdhet", "name": "Kundnöjdhet", "unit": "%", "aggregation": "weighted_avg", "format": "percent" },
+        { "id": "kvalitetsindex", "name": "Kvalitetsindex", "unit": "%", "aggregation": "weighted_avg", "format": "percent" }
+      ]
+    }
+  ]
+}

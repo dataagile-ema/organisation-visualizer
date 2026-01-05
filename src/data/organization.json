@@ -1,0 +1,202 @@
+{
+  "id": "koncernen",
+  "name": "Koncernen AB",
+  "type": "koncern",
+  "costCenter": "1000",
+  "manager": "Anna Lindqvist",
+  "children": [
+    {
+      "id": "koncernstab",
+      "name": "Koncernstab",
+      "type": "division",
+      "costCenter": "1100",
+      "manager": "Erik Johansson",
+      "children": [
+        {
+          "id": "ekonomi",
+          "name": "Ekonomi & Finans",
+          "type": "stab",
+          "costCenter": "1110",
+          "manager": "Maria Andersson",
+          "children": [
+            { "id": "redovisning", "name": "Redovisning", "type": "enhet", "costCenter": "1111", "manager": "Lars Pettersson" },
+            { "id": "controlling", "name": "Controlling", "type": "enhet", "costCenter": "1112", "manager": "Sara Nilsson" },
+            { "id": "treasury", "name": "Treasury", "type": "enhet", "costCenter": "1113", "manager": "Johan Eriksson" }
+          ]
+        },
+        {
+          "id": "hr",
+          "name": "Personal & HR",
+          "type": "stab",
+          "costCenter": "1120",
+          "manager": "Karin Svensson",
+          "children": [
+            { "id": "rekrytering", "name": "Rekrytering", "type": "enhet", "costCenter": "1121", "manager": "Anders Berg" },
+            { "id": "kompetensutveckling", "name": "Kompetensutveckling", "type": "enhet", "costCenter": "1122", "manager": "Linda Holm" },
+            { "id": "arbetsratt", "name": "Arbetsrätt & Förhandling", "type": "enhet", "costCenter": "1123", "manager": "Peter Lindgren" }
+          ]
+        },
+        {
+          "id": "it",
+          "name": "IT & Digitalisering",
+          "type": "stab",
+          "costCenter": "1130",
+          "manager": "Magnus Karlsson",
+          "children": [
+            { "id": "infrastruktur", "name": "Infrastruktur", "type": "enhet", "costCenter": "1131", "manager": "Eva Björk" },
+            { "id": "applikationer", "name": "Applikationsutveckling", "type": "enhet", "costCenter": "1132", "manager": "David Olsson" },
+            { "id": "support", "name": "IT-support", "type": "enhet", "costCenter": "1133", "manager": "Anna Ström" }
+          ]
+        },
+        {
+          "id": "juridik",
+          "name": "Juridik",
+          "type": "stab",
+          "costCenter": "1140",
+          "manager": "Helena Lund"
+        },
+        {
+          "id": "kommunikation",
+          "name": "Kommunikation & Marknad",
+          "type": "stab",
+          "costCenter": "1150",
+          "manager": "Fredrik Wallin"
+        }
+      ]
+    },
+    {
+      "id": "division-nord",
+      "name": "Division Nord",
+      "type": "division",
+      "costCenter": "2000",
+      "manager": "Mikael Persson",
+      "children": [
+        {
+          "id": "region-stockholm",
+          "name": "Region Stockholm",
+          "type": "avdelning",
+          "costCenter": "2100",
+          "manager": "Christina Ek",
+          "children": [
+            { "id": "sthlm-city", "name": "Stockholm City", "type": "enhet", "costCenter": "2110", "manager": "Oskar Lindberg" },
+            { "id": "sthlm-norr", "name": "Stockholm Norr", "type": "enhet", "costCenter": "2120", "manager": "Jenny Forsberg" },
+            { "id": "sthlm-soder", "name": "Stockholm Söder", "type": "enhet", "costCenter": "2130", "manager": "Marcus Dahl" }
+          ]
+        },
+        {
+          "id": "region-uppsala",
+          "name": "Region Uppsala-Gävle",
+          "type": "avdelning",
+          "costCenter": "2200",
+          "manager": "Björn Åberg",
+          "children": [
+            { "id": "uppsala", "name": "Uppsala", "type": "enhet", "costCenter": "2210", "manager": "Elin Sjögren" },
+            { "id": "gavle", "name": "Gävle", "type": "enhet", "costCenter": "2220", "manager": "Tomas Wik" }
+          ]
+        },
+        {
+          "id": "region-norr",
+          "name": "Region Norrland",
+          "type": "avdelning",
+          "costCenter": "2300",
+          "manager": "Lena Hedlund",
+          "children": [
+            { "id": "umea", "name": "Umeå", "type": "enhet", "costCenter": "2310", "manager": "Karl Nyström" },
+            { "id": "lulea", "name": "Luleå", "type": "enhet", "costCenter": "2320", "manager": "Ingrid Sundberg" },
+            { "id": "sundsvall", "name": "Sundsvall", "type": "enhet", "costCenter": "2330", "manager": "Per Holmberg" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "division-syd",
+      "name": "Division Syd",
+      "type": "division",
+      "costCenter": "3000",
+      "manager": "Sofia Bergström",
+      "children": [
+        {
+          "id": "region-goteborg",
+          "name": "Region Göteborg",
+          "type": "avdelning",
+          "costCenter": "3100",
+          "manager": "Henrik Larsson",
+          "children": [
+            { "id": "gbg-centrum", "name": "Göteborg Centrum", "type": "enhet", "costCenter": "3110", "manager": "Emma Gustafsson" },
+            { "id": "gbg-hisingen", "name": "Göteborg Hisingen", "type": "enhet", "costCenter": "3120", "manager": "Simon Eliasson" },
+            { "id": "boras", "name": "Borås", "type": "enhet", "costCenter": "3130", "manager": "Malin Fransson" }
+          ]
+        },
+        {
+          "id": "region-malmo",
+          "name": "Region Malmö-Skåne",
+          "type": "avdelning",
+          "costCenter": "3200",
+          "manager": "Andreas Månsson",
+          "children": [
+            { "id": "malmo", "name": "Malmö", "type": "enhet", "costCenter": "3210", "manager": "Camilla Bengtsson" },
+            { "id": "lund", "name": "Lund", "type": "enhet", "costCenter": "3220", "manager": "Viktor Jönsson" },
+            { "id": "helsingborg", "name": "Helsingborg", "type": "enhet", "costCenter": "3230", "manager": "Rebecca Strand" }
+          ]
+        },
+        {
+          "id": "region-vast",
+          "name": "Region Väst",
+          "type": "avdelning",
+          "costCenter": "3300",
+          "manager": "Daniel Edström",
+          "children": [
+            { "id": "jonkoping", "name": "Jönköping", "type": "enhet", "costCenter": "3310", "manager": "Frida Löfgren" },
+            { "id": "vaxjo", "name": "Växjö", "type": "enhet", "costCenter": "3320", "manager": "Alexander Sundqvist" },
+            { "id": "kalmar", "name": "Kalmar", "type": "enhet", "costCenter": "3330", "manager": "Johanna Ekberg" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "division-produkt",
+      "name": "Division Produkt & Tjänster",
+      "type": "division",
+      "costCenter": "4000",
+      "manager": "Patrik Nordström",
+      "children": [
+        {
+          "id": "produktutveckling",
+          "name": "Produktutveckling",
+          "type": "avdelning",
+          "costCenter": "4100",
+          "manager": "Carolina Blom",
+          "children": [
+            { "id": "innovation", "name": "Innovation & Koncept", "type": "enhet", "costCenter": "4110", "manager": "Robert Engström" },
+            { "id": "design", "name": "Design & UX", "type": "enhet", "costCenter": "4120", "manager": "Therese Åström" },
+            { "id": "prototyp", "name": "Prototyp & Test", "type": "enhet", "costCenter": "4130", "manager": "Martin Sjöblom" }
+          ]
+        },
+        {
+          "id": "drift",
+          "name": "Drift & Leverans",
+          "type": "avdelning",
+          "costCenter": "4200",
+          "manager": "Ulrika Lindholm",
+          "children": [
+            { "id": "produktion", "name": "Produktion", "type": "enhet", "costCenter": "4210", "manager": "Jonas Sandström" },
+            { "id": "logistik", "name": "Logistik", "type": "enhet", "costCenter": "4220", "manager": "Kristina Roos" },
+            { "id": "kvalitet", "name": "Kvalitetssäkring", "type": "enhet", "costCenter": "4230", "manager": "Emil Berglund" }
+          ]
+        },
+        {
+          "id": "kundsupport",
+          "name": "Kundsupport",
+          "type": "avdelning",
+          "costCenter": "4300",
+          "manager": "Sandra Vikström",
+          "children": [
+            { "id": "forstalinjen", "name": "Första linjen", "type": "enhet", "costCenter": "4310", "manager": "Mattias Gren" },
+            { "id": "specialister", "name": "Specialister", "type": "enhet", "costCenter": "4320", "manager": "Nina Söderberg" },
+            { "id": "kundvard", "name": "Kundvård", "type": "enhet", "costCenter": "4330", "manager": "Rickard Lundqvist" }
+          ]
+        }
+      ]
+    }
+  ]
+}
