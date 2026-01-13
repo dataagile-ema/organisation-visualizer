@@ -7,7 +7,14 @@
       "Bash(git push:*)",
       "Bash(where npm)",
       "WebSearch",
-      "Bash(move:*)"
+      "Bash(move:*)",
+      "Bash(npx http-server -o)",
+      "Bash(timeout:*)",
+      "Bash(git -C C:/Source/organisation-visualizer status)",
+      "Bash(git -C C:/Source/organisation-visualizer diff)",
+      "Bash(git -C C:/Source/organisation-visualizer log --oneline -5)",
+      "Bash(git -C C:/Source/organisation-visualizer add .claude/commands/start-org-viz.md .claude/settings.local.json)",
+      "Bash(git -C C:/Source/organisation-visualizer commit -m \"$\\(cat <<''EOF''\nUpdate Claude commands and local settings\n\nAdd findstr to allowed tools for start-org-viz command and clarify port check instructions. Update local settings with additional permitted bash commands.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }
