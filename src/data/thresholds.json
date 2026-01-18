@@ -1,0 +1,42 @@
+{
+  "personalomsattning": {
+    "label": "Personalomsättning",
+    "unit": "%",
+    "thresholds": {
+      "good": { "max": 10, "color": "emerald" },
+      "warning": { "max": 15, "color": "amber" },
+      "critical": { "min": 15, "color": "red" }
+    },
+    "higherIsBetter": false
+  },
+  "sjukfranvaro": {
+    "label": "Sjukfrånvaro",
+    "unit": "%",
+    "thresholds": {
+      "good": { "max": 3.5, "color": "emerald" },
+      "warning": { "max": 5, "color": "amber" },
+      "critical": { "min": 5, "color": "red" }
+    },
+    "higherIsBetter": false
+  },
+  "kundnojdhet": {
+    "label": "Kundnöjdhet",
+    "unit": "%",
+    "thresholds": {
+      "good": { "min": 85, "color": "emerald" },
+      "warning": { "min": 75, "color": "amber" },
+      "critical": { "max": 75, "color": "red" }
+    },
+    "higherIsBetter": true
+  },
+  "budgetavvikelse": {
+    "label": "Budgetavvikelse kostnader",
+    "unit": "%",
+    "thresholds": {
+      "good": { "max": 0, "color": "emerald" },
+      "warning": { "max": 5, "color": "amber" },
+      "critical": { "min": 5, "color": "red" }
+    },
+    "higherIsBetter": false
+  }
+}

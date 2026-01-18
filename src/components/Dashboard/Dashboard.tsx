@@ -1,9 +1,40 @@
-import type { OrgUnit, UnitData } from '../../types';
+import type { OrgUnit, UnitData, UnitTypesConfig, ThresholdsConfig } from '../../types';
+import { getThresholdColor } from '../../types';
 import { MetricCard } from './MetricCard';
 import { BudgetChart } from './BudgetChart';
 import { CostBreakdownChart } from './CostBreakdownChart';
 import { calculateResult, calculateVariance, getAllCostCenters } from '../../utils/aggregation';
+import { getColorClasses as getStaticColorClasses } from '../../utils/colorClasses';
 import { Users, TrendingDown, Activity, Award } from 'lucide-react';
+import unitTypesConfig from '../../data/unit-types.json';
+import thresholdsConfig from '../../data/thresholds.json';
+
+const typeConfig = unitTypesConfig as UnitTypesConfig;
+const thresholds = thresholdsConfig as ThresholdsConfig;
+
+// Hjälpfunktion för att få badge-klasser för en enhetstyp
+function getTypeBadgeClasses(type: string): string {
+  const config = typeConfig.types?.[type];
+  if (config?.color?.bg && config?.color?.badgeText) {
+    return `${config.color.bg} ${config.color.badgeText}`;
+  }
+  return 'bg-slate-100 text-slate-700';
+}
+
+// Hjälpfunktion för att få typ-label
+function getTypeLabel(type: string): string {
+  const config = typeConfig.types?.[type];
+  return config?.label || type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+// Hjälpfunktion för färgklasser baserat på tröskelvärde
+function getColorClasses(value: number, metricKey: string): { bg: string; text: string } {
+  const config = thresholds[metricKey];
+  if (!config) return { bg: 'bg-slate-100', text: 'text-slate-600' };
+
+  const color = getThresholdColor(value, config);
+  return getStaticColorClasses(color);
+}
 
 interface DashboardProps {
   unit: OrgUnit;
@@ -37,6 +68,21 @@ export function Dashboard({ unit, data }: DashboardProps) {
 
   const childCount = getAllCostCenters(unit).length;
 
+  // Beräkna färgklasser för mätvärden
+  const personalOmsColors = getColorClasses(data.personal.personalomsattning, 'personalomsattning');
+  const sjukfranvaroColors = getColorClasses(data.personal.sjukfranvaro, 'sjukfranvaro');
+  const kundnojdhetColors = data.produktion.kundnojdhet !== null
+    ? getColorClasses(data.produktion.kundnojdhet, 'kundnojdhet')
+    : { bg: 'bg-slate-100', text: 'text-slate-600' };
+
+  // Bestäm variant för MetricCard baserat på tröskelvärden
+  const getBudgetVariant = (variance: number): 'positive' | 'warning' | 'negative' => {
+    const color = getThresholdColor(variance, thresholds.budgetavvikelse);
+    if (color === 'emerald') return 'positive';
+    if (color === 'amber') return 'warning';
+    return 'negative';
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -54,14 +100,8 @@ export function Dashboard({ unit, data }: DashboardProps) {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-              unit.type === 'koncern' ? 'bg-blue-100 text-blue-700' :
-              unit.type === 'division' ? 'bg-emerald-100 text-emerald-700' :
-              unit.type === 'avdelning' ? 'bg-amber-100 text-amber-700' :
-              unit.type === 'stab' ? 'bg-purple-100 text-purple-700' :
-              'bg-slate-100 text-slate-700'
-            }`}>
-              {unit.type.charAt(0).toUpperCase() + unit.type.slice(1)}
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeBadgeClasses(unit.type)}`}>
+              {getTypeLabel(unit.type)}
             </span>
           </div>
         </div>
@@ -89,7 +129,7 @@ export function Dashboard({ unit, data }: DashboardProps) {
             subtitle={`Budget: ${new Intl.NumberFormat('sv-SE').format(totalBudgetKostnader)} KSEK`}
             trend={kostnadsVariance}
             trendLabel="vs budget"
-            variant={kostnadsVariance <= 0 ? 'positive' : kostnadsVariance < 5 ? 'warning' : 'negative'}
+            variant={getBudgetVariant(kostnadsVariance)}
           />
           <MetricCard
             title="Resultat"
@@ -104,7 +144,7 @@ export function Dashboard({ unit, data }: DashboardProps) {
             title="Budgetavvikelse kostnader"
             value={`${kostnadsVariance > 0 ? '+' : ''}${kostnadsVariance.toFixed(1)}%`}
             subtitle={kostnadsVariance <= 0 ? 'Under budget' : 'Över budget'}
-            variant={kostnadsVariance <= 0 ? 'positive' : kostnadsVariance < 5 ? 'warning' : 'negative'}
+            variant={getBudgetVariant(kostnadsVariance)}
           />
         </div>
       </div>
@@ -128,16 +168,8 @@ export function Dashboard({ unit, data }: DashboardProps) {
           </div>
           <div className="bg-white rounded-lg border border-slate-200 p-4">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                data.personal.personalomsattning > 15 ? 'bg-red-100' :
-                data.personal.personalomsattning > 10 ? 'bg-amber-100' :
-                'bg-emerald-100'
-              }`}>
-                <TrendingDown className={`w-5 h-5 ${
-                  data.personal.personalomsattning > 15 ? 'text-red-600' :
-                  data.personal.personalomsattning > 10 ? 'text-amber-600' :
-                  'text-emerald-600'
-                }`} />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${personalOmsColors.bg}`}>
+                <TrendingDown className={`w-5 h-5 ${personalOmsColors.text}`} />
               </div>
               <div>
                 <div className="text-sm text-slate-500">Personalomsättning</div>
@@ -149,16 +181,8 @@ export function Dashboard({ unit, data }: DashboardProps) {
           </div>
           <div className="bg-white rounded-lg border border-slate-200 p-4">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                data.personal.sjukfranvaro > 5 ? 'bg-red-100' :
-                data.personal.sjukfranvaro > 3.5 ? 'bg-amber-100' :
-                'bg-emerald-100'
-              }`}>
-                <Activity className={`w-5 h-5 ${
-                  data.personal.sjukfranvaro > 5 ? 'text-red-600' :
-                  data.personal.sjukfranvaro > 3.5 ? 'text-amber-600' :
-                  'text-emerald-600'
-                }`} />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${sjukfranvaroColors.bg}`}>
+                <Activity className={`w-5 h-5 ${sjukfranvaroColors.text}`} />
               </div>
               <div>
                 <div className="text-sm text-slate-500">Sjukfrånvaro</div>
@@ -195,16 +219,8 @@ export function Dashboard({ unit, data }: DashboardProps) {
             {data.produktion.kundnojdhet !== null && (
               <div className="bg-white rounded-lg border border-slate-200 p-4">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    data.produktion.kundnojdhet >= 85 ? 'bg-emerald-100' :
-                    data.produktion.kundnojdhet >= 75 ? 'bg-amber-100' :
-                    'bg-red-100'
-                  }`}>
-                    <Award className={`w-5 h-5 ${
-                      data.produktion.kundnojdhet >= 85 ? 'text-emerald-600' :
-                      data.produktion.kundnojdhet >= 75 ? 'text-amber-600' :
-                      'text-red-600'
-                    }`} />
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${kundnojdhetColors.bg}`}>
+                    <Award className={`w-5 h-5 ${kundnojdhetColors.text}`} />
                   </div>
                   <div>
                     <div className="text-sm text-slate-500">Kundnöjdhet</div>

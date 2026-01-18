@@ -1,0 +1,66 @@
+{
+  "types": {
+    "koncern": {
+      "label": "Koncern",
+      "color": {
+        "text": "text-blue-600",
+        "bg": "bg-blue-100",
+        "badgeText": "text-blue-700"
+      },
+      "icon": "Building",
+      "allowedChildren": ["division"],
+      "allowedAtDepth": [0]
+    },
+    "division": {
+      "label": "Division",
+      "color": {
+        "text": "text-emerald-600",
+        "bg": "bg-emerald-100",
+        "badgeText": "text-emerald-700"
+      },
+      "icon": "Briefcase",
+      "allowedChildren": ["avdelning", "stab", "enhet"],
+      "allowedAtDepth": [1]
+    },
+    "avdelning": {
+      "label": "Avdelning",
+      "color": {
+        "text": "text-amber-600",
+        "bg": "bg-amber-100",
+        "badgeText": "text-amber-700"
+      },
+      "icon": "Users",
+      "allowedChildren": ["enhet"],
+      "allowedAtDepth": [2, 3]
+    },
+    "stab": {
+      "label": "Stab",
+      "color": {
+        "text": "text-purple-600",
+        "bg": "bg-purple-100",
+        "badgeText": "text-purple-700"
+      },
+      "icon": "Briefcase",
+      "allowedChildren": ["enhet"],
+      "allowedAtDepth": [2]
+    },
+    "enhet": {
+      "label": "Enhet",
+      "color": {
+        "text": "text-slate-500",
+        "bg": "bg-slate-100",
+        "badgeText": "text-slate-700"
+      },
+      "icon": "Users",
+      "allowedChildren": [],
+      "allowedAtDepth": [2, 3, 4]
+    }
+  },
+  "iconOverrides": [
+    { "pattern": "ekonomi|treasury|redovisning|controlling", "icon": "Scale" },
+    { "pattern": "hr|personal|rekrytering|kompetensutveckling|arbetsratt", "icon": "Users" },
+    { "pattern": "it|infrastruktur|applikationer|support", "icon": "Server" },
+    { "pattern": "kommunikation|marknad", "icon": "Megaphone" },
+    { "pattern": "juridik", "icon": "Scale" }
+  ]
+}

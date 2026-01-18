@@ -6,7 +6,7 @@ import type {
   CostCenterCheckResponse
 } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = '/api';
 
 class ApiError extends Error {
   constructor(

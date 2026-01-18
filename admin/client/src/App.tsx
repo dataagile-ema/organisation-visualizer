@@ -21,22 +21,22 @@ function App() {
   const [formMode, setFormMode] = useState<'create' | 'edit' | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<OrgUnit | null>(null);
 
-  const handleCreateUnit = async (data: CreateUnitRequest) => {
+  const handleCreateUnit = async (data: CreateUnitRequest | UpdateUnitRequest) => {
     if (!selectedUnit) return;
 
     try {
-      await createUnit(selectedUnit.id, data);
+      await createUnit(selectedUnit.id, data as CreateUnitRequest);
       setFormMode(null);
     } catch (error) {
       console.error('Create failed:', error);
     }
   };
 
-  const handleUpdateUnit = async (data: UpdateUnitRequest) => {
+  const handleUpdateUnit = async (data: CreateUnitRequest | UpdateUnitRequest) => {
     if (!selectedUnit) return;
 
     try {
-      await updateUnit(selectedUnit.id, data);
+      await updateUnit(selectedUnit.id, data as UpdateUnitRequest);
       setFormMode(null);
     } catch (error) {
       console.error('Update failed:', error);

@@ -1,5 +1,38 @@
-import type { OrgUnit } from '../../types';
+import type { OrgUnit, UnitTypesConfig } from '../../types';
 import { ChevronRight, ChevronDown, Building, Users, Briefcase, Server, Scale, Megaphone } from 'lucide-react';
+import unitTypesConfig from '../../data/unit-types.json';
+
+const config = unitTypesConfig as UnitTypesConfig;
+
+// Ikon-mappning
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Building,
+  Users,
+  Briefcase,
+  Server,
+  Scale,
+  Megaphone
+};
+
+// Pre-kompilera regex-mönster vid laddning för bättre prestanda och säkerhet
+interface CompiledIconOverride {
+  regex: RegExp;
+  icon: string;
+}
+
+const compiledIconOverrides: CompiledIconOverride[] = [];
+if (config.iconOverrides) {
+  for (const override of config.iconOverrides) {
+    try {
+      compiledIconOverrides.push({
+        regex: new RegExp(override.pattern, 'i'),
+        icon: override.icon
+      });
+    } catch (error) {
+      console.warn(`Ogiltig regex i iconOverrides: ${override.pattern}`, error);
+    }
+  }
+}
 
 interface OrgNodeProps {
   unit: OrgUnit;
@@ -13,43 +46,26 @@ interface OrgNodeProps {
 function getIconForUnit(unit: OrgUnit) {
   const id = unit.id.toLowerCase();
 
-  // Specifika ikoner baserat på enhetens ID
-  if (id.includes('ekonomi') || id.includes('treasury') || id.includes('redovisning') || id.includes('controlling')) {
-    return Scale;
-  }
-  if (id.includes('hr') || id.includes('personal') || id.includes('rekrytering') || id.includes('kompetensutveckling') || id.includes('arbetsratt')) {
-    return Users;
-  }
-  if (id.includes('it') || id.includes('infrastruktur') || id.includes('applikationer') || id.includes('support')) {
-    return Server;
-  }
-  if (id.includes('kommunikation') || id.includes('marknad')) {
-    return Megaphone;
-  }
-  if (id.includes('juridik')) {
-    return Scale;
+  // Kolla pre-kompilerade icon overrides först
+  for (const override of compiledIconOverrides) {
+    if (override.regex.test(id)) {
+      return iconMap[override.icon] || Users;
+    }
   }
 
-  // Baserat på typ
-  switch (unit.type) {
-    case 'koncern':
-      return Building;
-    case 'division':
-      return Briefcase;
-    case 'stab':
-      return Briefcase;
-    default:
-      return Users;
+  // Fallback till typ-baserad ikon med null-check
+  const typeConfig = config.types?.[unit.type];
+  if (typeConfig?.icon) {
+    return iconMap[typeConfig.icon] || Users;
   }
+
+  return Users;
 }
 
-const typeColors: Record<string, string> = {
-  koncern: 'text-blue-600',
-  division: 'text-emerald-600',
-  avdelning: 'text-amber-600',
-  enhet: 'text-slate-500',
-  stab: 'text-purple-600'
-};
+function getTypeColor(type: string): string {
+  const typeConfig = config.types?.[type];
+  return typeConfig?.color?.text || 'text-slate-500';
+}
 
 export function OrgNode({
   unit,
@@ -96,7 +112,7 @@ export function OrgNode({
           onClick={() => onSelectUnit(unit)}
           className="flex items-center gap-2 flex-1 text-left"
         >
-          <Icon className={`w-4 h-4 ${typeColors[unit.type] || 'text-slate-500'}`} />
+          <Icon className={`w-4 h-4 ${getTypeColor(unit.type)}`} />
           <span className={`text-sm ${isSelected ? 'font-medium' : ''}`}>
             {unit.name}
           </span>

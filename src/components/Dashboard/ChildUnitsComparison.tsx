@@ -1,6 +1,29 @@
-import type { OrgUnit, UnitData } from '../../types';
+import type { OrgUnit, UnitData, ThresholdsConfig } from '../../types';
+import { getThresholdColor } from '../../types';
 import { calculateResult, calculateVariance } from '../../utils/aggregation';
+import { getTextClass, getBadgeClasses as getStaticBadgeClasses } from '../../utils/colorClasses';
 import { ChevronRight } from 'lucide-react';
+import thresholdsConfig from '../../data/thresholds.json';
+
+const thresholds = thresholdsConfig as ThresholdsConfig;
+
+// Hjälpfunktion för att få textfärgklass baserat på tröskelvärde
+function getTextColorClass(value: number, metricKey: string): string {
+  const config = thresholds[metricKey];
+  if (!config) return 'text-slate-600';
+
+  const color = getThresholdColor(value, config);
+  return getTextClass(color);
+}
+
+// Hjälpfunktion för badge-färger
+function getBadgeClasses(value: number, metricKey: string): string {
+  const config = thresholds[metricKey];
+  if (!config) return 'bg-slate-100 text-slate-700';
+
+  const color = getThresholdColor(value, config);
+  return getStaticBadgeClasses(color);
+}
 
 interface ChildUnitsComparisonProps {
   unit: OrgUnit;
@@ -54,13 +77,13 @@ export function ChildUnitsComparison({ unit, getUnitData, onSelectUnit }: ChildU
           <thead>
             <tr className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider border-b border-slate-200">
               <th className="px-4 py-3">Enhet</th>
-              <th className="px-4 py-3 text-right">Anställda</th>
+              <th className="px-4 py-3 text-right">Anstallda</th>
               <th className="px-4 py-3 text-right">Kostnader (KSEK)</th>
               <th className="px-4 py-3 text-right">Avvikelse</th>
               <th className="px-4 py-3 text-right">Pers.oms.</th>
               <th className="px-4 py-3 text-right">Sjukfr.</th>
               {childrenWithData.some(c => c.data.produktion.kundnojdhet !== null) && (
-                <th className="px-4 py-3 text-right">Kundnöjdhet</th>
+                <th className="px-4 py-3 text-right">Kundnojdhet</th>
               )}
               <th className="px-4 py-3"></th>
             </tr>
@@ -83,40 +106,24 @@ export function ChildUnitsComparison({ unit, getUnitData, onSelectUnit }: ChildU
                   {new Intl.NumberFormat('sv-SE').format(kostnaderUtfall)}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                    kostnaderVariance <= 0 ? 'bg-emerald-100 text-emerald-700' :
-                    kostnaderVariance < 5 ? 'bg-amber-100 text-amber-700' :
-                    'bg-red-100 text-red-700'
-                  }`}>
+                  <span className={"inline-flex items-center px-2 py-0.5 rounded text-xs font-medium " + getBadgeClasses(kostnaderVariance, 'budgetavvikelse')}>
                     {kostnaderVariance > 0 ? '+' : ''}{kostnaderVariance.toFixed(1)}%
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <span className={`text-sm ${
-                    data.personal.personalomsattning > 15 ? 'text-red-600' :
-                    data.personal.personalomsattning > 10 ? 'text-amber-600' :
-                    'text-slate-600'
-                  }`}>
+                  <span className={"text-sm " + getTextColorClass(data.personal.personalomsattning, 'personalomsattning')}>
                     {data.personal.personalomsattning.toFixed(1)}%
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <span className={`text-sm ${
-                    data.personal.sjukfranvaro > 5 ? 'text-red-600' :
-                    data.personal.sjukfranvaro > 3.5 ? 'text-amber-600' :
-                    'text-slate-600'
-                  }`}>
+                  <span className={"text-sm " + getTextColorClass(data.personal.sjukfranvaro, 'sjukfranvaro')}>
                     {data.personal.sjukfranvaro.toFixed(1)}%
                   </span>
                 </td>
                 {childrenWithData.some(c => c.data.produktion.kundnojdhet !== null) && (
                   <td className="px-4 py-3 text-right">
                     {data.produktion.kundnojdhet !== null ? (
-                      <span className={`text-sm ${
-                        data.produktion.kundnojdhet >= 85 ? 'text-emerald-600' :
-                        data.produktion.kundnojdhet >= 75 ? 'text-amber-600' :
-                        'text-red-600'
-                      }`}>
+                      <span className={"text-sm " + getTextColorClass(data.produktion.kundnojdhet, 'kundnojdhet')}>
                         {data.produktion.kundnojdhet}%
                       </span>
                     ) : (

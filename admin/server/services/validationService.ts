@@ -1,8 +1,61 @@
 import { z } from 'zod';
-import type { OrgUnit, ValidationResult, CreateUnitRequest, UpdateUnitRequest } from '../types/index.js';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import type { OrgUnit, ValidationResult } from '../types/index.js';
 
-// Zod schemas
-export const OrgUnitTypeSchema = z.enum(['koncern', 'division', 'avdelning', 'enhet', 'stab']);
+// Ladda unit-types.json från huvudappens data-katalog
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const unitTypesPath = join(__dirname, '..', '..', '..', 'src', 'data', 'unit-types.json');
+
+interface UnitTypeConfig {
+  label: string;
+  color: { text: string; bg: string; badgeText: string };
+  icon: string;
+  allowedChildren: string[];
+  allowedAtDepth: number[];
+}
+
+interface UnitTypesConfig {
+  types: Record<string, UnitTypeConfig>;
+  iconOverrides: { pattern: string; icon: string }[];
+}
+
+let unitTypesConfig: UnitTypesConfig;
+
+function loadUnitTypes(): UnitTypesConfig {
+  if (!unitTypesConfig) {
+    try {
+      const content = readFileSync(unitTypesPath, 'utf-8');
+      unitTypesConfig = JSON.parse(content);
+    } catch (error) {
+      console.error('Kunde inte ladda unit-types.json:', error);
+      // Fallback till hårdkodade typer om filen inte finns
+      unitTypesConfig = {
+        types: {
+          koncern: { label: 'Koncern', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['division'], allowedAtDepth: [0] },
+          division: { label: 'Division', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['avdelning', 'stab', 'enhet'], allowedAtDepth: [1] },
+          avdelning: { label: 'Avdelning', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['enhet'], allowedAtDepth: [2, 3] },
+          stab: { label: 'Stab', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['enhet'], allowedAtDepth: [2] },
+          enhet: { label: 'Enhet', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: [], allowedAtDepth: [2, 3, 4] }
+        },
+        iconOverrides: []
+      };
+    }
+  }
+  return unitTypesConfig;
+}
+
+// Dynamiskt Zod-schema som validerar mot konfigurerade typer
+function getValidTypes(): string[] {
+  return Object.keys(loadUnitTypes().types);
+}
+
+export const OrgUnitTypeSchema = z.string().min(1, 'Typ är obligatoriskt').refine(
+  (type) => getValidTypes().includes(type),
+  (type) => ({ message: `Ogiltig typ: ${type}. Giltiga typer: ${getValidTypes().join(', ')}` })
+);
 
 export const OrgUnitCreateSchema = z.object({
   id: z.string().min(1).regex(/^[a-z0-9-]+$/, 'ID får endast innehålla små bokstäver, siffror och bindestreck'),
@@ -14,11 +67,60 @@ export const OrgUnitCreateSchema = z.object({
 
 export const OrgUnitUpdateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
+  type: z.string().min(1).refine(
+    (type) => type === undefined || getValidTypes().includes(type),
+    (type) => ({ message: `Ogiltig typ: ${type}. Giltiga typer: ${getValidTypes().join(', ')}` })
+  ).optional(),
   manager: z.string().max(100).optional(),
   costCenter: z.string().regex(/^\d{4}$/).optional()
 });
 
 class ValidationService {
+  /**
+   * Hämta konfiguration för en enhetstyp
+   */
+  getTypeConfig(type: string): UnitTypeConfig | undefined {
+    return loadUnitTypes().types[type];
+  }
+
+  /**
+   * Hämta alla giltiga enhetstyper
+   */
+  getValidTypes(): string[] {
+    return Object.keys(loadUnitTypes().types);
+  }
+
+  /**
+   * Kontrollera om en typ är giltig
+   */
+  isValidType(type: string): boolean {
+    return this.getValidTypes().includes(type);
+  }
+
+  /**
+   * Hämta tillåtna barntyper för en föräldratyp
+   */
+  getAllowedChildTypes(parentType: string): string[] {
+    const config = this.getTypeConfig(parentType);
+    return config?.allowedChildren || [];
+  }
+
+  /**
+   * Validera att en barntyp är tillåten under en föräldratyp
+   */
+  validateChildType(parentType: string, childType: string): ValidationResult {
+    const issues: string[] = [];
+    const allowedChildren = this.getAllowedChildTypes(parentType);
+
+    if (!allowedChildren.includes(childType)) {
+      const parentLabel = this.getTypeConfig(parentType)?.label || parentType;
+      const childLabel = this.getTypeConfig(childType)?.label || childType;
+      issues.push(`${childLabel} kan inte placeras under ${parentLabel}. Tillåtna typer: ${allowedChildren.join(', ') || 'inga'}`);
+    }
+
+    return { valid: issues.length === 0, issues };
+  }
+
   /**
    * Validera att costCenter är unikt över hela trädet
    */
@@ -54,6 +156,7 @@ class ValidationService {
     const issues: string[] = [];
     const costCenters = new Set<string>();
     const ids = new Set<string>();
+    const config = loadUnitTypes();
 
     const validate = (unit: OrgUnit, depth: number = 0, parentType?: string) => {
       // Kontrollera duplicerade cost centers
@@ -68,13 +171,23 @@ class ValidationService {
       }
       ids.add(unit.id);
 
-      // Validera hierarki-regler
-      if (unit.type === 'koncern' && depth > 0) {
-        issues.push(`Koncern kan endast vara på toppnivå (${unit.name})`);
-      }
+      // Validera att typen finns i konfigurationen
+      const typeConfig = config.types[unit.type];
+      if (!typeConfig) {
+        issues.push(`Ogiltig typ "${unit.type}" för enhet ${unit.name}`);
+      } else {
+        // Validera djup
+        if (!typeConfig.allowedAtDepth.includes(depth)) {
+          issues.push(`${typeConfig.label} kan inte vara på djup ${depth} (${unit.name})`);
+        }
 
-      if (unit.type === 'stab' && parentType !== 'division') {
-        issues.push(`Stab måste vara direkt under division (${unit.name})`);
+        // Validera att enheten är tillåten under föräldern
+        if (parentType) {
+          const parentConfig = config.types[parentType];
+          if (parentConfig && !parentConfig.allowedChildren.includes(unit.type)) {
+            issues.push(`${typeConfig.label} kan inte placeras under ${parentConfig.label} (${unit.name})`);
+          }
+        }
       }
 
       // Rekursivt validera barn
@@ -105,6 +218,7 @@ class ValidationService {
    */
   validateMove(unit: OrgUnit, newParent: OrgUnit, org: OrgUnit): ValidationResult {
     const issues: string[] = [];
+    const config = loadUnitTypes();
 
     // Kan inte flytta till sig själv
     if (unit.id === newParent.id) {
@@ -117,13 +231,53 @@ class ValidationService {
       issues.push('Kan inte flytta enhet till egen underenhet');
     }
 
-    // Validera hierarki-regler
-    if (unit.type === 'koncern') {
-      issues.push('Kan inte flytta koncernnivån');
+    // Validera hierarki-regler från config
+    const unitConfig = config.types[unit.type];
+    const parentConfig = config.types[newParent.type];
+
+    if (unitConfig?.allowedAtDepth.includes(0) && unitConfig.allowedAtDepth.length === 1) {
+      issues.push(`Kan inte flytta ${unitConfig.label}`);
     }
 
-    if (unit.type === 'stab' && newParent.type !== 'division') {
-      issues.push('Stab kan endast vara direkt under division');
+    if (parentConfig && !parentConfig.allowedChildren.includes(unit.type)) {
+      const unitLabel = unitConfig?.label || unit.type;
+      issues.push(`${unitLabel} kan inte placeras under ${parentConfig.label}`);
+    }
+
+    return { valid: issues.length === 0, issues };
+  }
+
+  /**
+   * Validera typändring
+   */
+  validateTypeChange(unit: OrgUnit, newType: string, parentType: string | null, org: OrgUnit): ValidationResult {
+    const issues: string[] = [];
+    const config = loadUnitTypes();
+
+    // Kontrollera att nya typen finns
+    if (!config.types[newType]) {
+      issues.push(`Ogiltig typ: ${newType}`);
+      return { valid: false, issues };
+    }
+
+    const newTypeConfig = config.types[newType];
+
+    // Kontrollera att nya typen är tillåten under föräldern
+    if (parentType) {
+      const parentConfig = config.types[parentType];
+      if (parentConfig && !parentConfig.allowedChildren.includes(newType)) {
+        issues.push(`${newTypeConfig.label} kan inte placeras under ${parentConfig.label}`);
+      }
+    }
+
+    // Kontrollera att enhetens barn fortfarande är tillåtna
+    if (unit.children && unit.children.length > 0) {
+      for (const child of unit.children) {
+        if (!newTypeConfig.allowedChildren.includes(child.type)) {
+          const childConfig = config.types[child.type];
+          issues.push(`${childConfig?.label || child.type} kan inte vara under ${newTypeConfig.label}`);
+        }
+      }
     }
 
     return { valid: issues.length === 0, issues };
@@ -158,6 +312,22 @@ class ValidationService {
       }
     }
 
+    return null;
+  }
+
+  /**
+   * Hitta förälder för en enhet
+   */
+  findParent(org: OrgUnit, unitId: string): OrgUnit | null {
+    if (org.children) {
+      for (const child of org.children) {
+        if (child.id === unitId) {
+          return org;
+        }
+        const found = this.findParent(child, unitId);
+        if (found) return found;
+      }
+    }
     return null;
   }
 

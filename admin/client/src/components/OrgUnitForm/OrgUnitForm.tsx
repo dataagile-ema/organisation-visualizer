@@ -2,6 +2,11 @@ import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import type { OrgUnit, CreateUnitRequest, UpdateUnitRequest } from '../../types';
 
+interface TypeOption {
+  value: string;
+  label: string;
+}
+
 interface OrgUnitFormProps {
   mode: 'create' | 'edit';
   unit?: OrgUnit;
@@ -21,30 +26,74 @@ export function OrgUnitForm({
 }: OrgUnitFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [costCenterError, setCostCenterError] = useState<string | null>(null);
+  const [allowedTypes, setAllowedTypes] = useState<TypeOption[]>([]);
+  const [typesLoading, setTypesLoading] = useState(true);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
-    setValue
+    watch
   } = useForm<CreateUnitRequest>({
     defaultValues: mode === 'edit' && unit ? {
       id: unit.id,
       name: unit.name,
-      type: unit.type as any,
+      type: unit.type,
       costCenter: unit.costCenter,
       manager: unit.manager || ''
     } : {
       id: '',
       name: '',
-      type: 'enhet',
+      type: '',
       costCenter: '',
       manager: ''
     }
   });
 
   const costCenter = watch('costCenter');
+
+  // Hämta tillåtna typer från API
+  useEffect(() => {
+    const fetchAllowedTypes = async () => {
+      setTypesLoading(true);
+      try {
+        if (mode === 'create' && parentUnit) {
+          // Hämta tillåtna barntyper för föräldern
+          const response = await fetch(`/api/organization/types/${parentUnit.type}/allowed-children`);
+          const data = await response.json();
+          if (data.success && data.data) {
+            setAllowedTypes(data.data);
+          }
+        } else if (mode === 'edit') {
+          // Vid redigering, visa enhetens nuvarande typ
+          setAllowedTypes([{
+            value: unit?.type || '',
+            label: unit?.type ? unit.type.charAt(0).toUpperCase() + unit.type.slice(1) : ''
+          }]);
+        } else {
+          // Fallback: hämta alla typer
+          const response = await fetch('/api/organization/types');
+          const data = await response.json();
+          if (data.success && data.data) {
+            setAllowedTypes(data.data);
+          }
+        }
+      } catch (error) {
+        console.error('Kunde inte hämta enhetstyper:', error);
+        // Fallback till standardtyper
+        setAllowedTypes([
+          { value: 'division', label: 'Division' },
+          { value: 'avdelning', label: 'Avdelning' },
+          { value: 'stab', label: 'Stab' },
+          { value: 'enhet', label: 'Enhet' }
+        ]);
+      } finally {
+        setTypesLoading(false);
+      }
+    };
+
+    fetchAllowedTypes();
+  }, [mode, parentUnit, unit]);
 
   // Validera costCenter när användaren skriver
   useEffect(() => {
@@ -83,12 +132,6 @@ export function OrgUnitForm({
       setIsSubmitting(false);
     }
   };
-
-  const allowedTypes = parentUnit?.type === 'division'
-    ? ['stab', 'avdelning', 'enhet']
-    : parentUnit?.type === 'avdelning'
-    ? ['enhet']
-    : ['division', 'enhet'];
 
   return (
     <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
@@ -151,16 +194,30 @@ export function OrgUnitForm({
         <select
           {...register('type', { required: 'Typ är obligatoriskt' })}
           className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={mode === 'edit'}
+          disabled={mode === 'edit' || typesLoading}
         >
-          {allowedTypes.map(type => (
-            <option key={type} value={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </option>
-          ))}
+          {typesLoading ? (
+            <option value="">Laddar...</option>
+          ) : allowedTypes.length === 0 ? (
+            <option value="">Inga tillåtna typer</option>
+          ) : (
+            <>
+              {mode === 'create' && <option value="">Välj typ...</option>}
+              {allowedTypes.map(type => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </>
+          )}
         </select>
         {errors.type && (
           <p className="text-sm text-red-600 mt-1">{errors.type.message}</p>
+        )}
+        {allowedTypes.length === 0 && !typesLoading && (
+          <p className="text-sm text-amber-600 mt-1">
+            Denna enhetstyp kan inte ha underenheter
+          </p>
         )}
       </div>
 
@@ -209,7 +266,7 @@ export function OrgUnitForm({
       <div className="flex gap-2 pt-4 border-t">
         <button
           type="submit"
-          disabled={isSubmitting || !!costCenterError}
+          disabled={isSubmitting || !!costCenterError || (mode === 'create' && allowedTypes.length === 0)}
           className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
         >
           {isSubmitting ? 'Sparar...' : mode === 'create' ? 'Skapa' : 'Spara'}
