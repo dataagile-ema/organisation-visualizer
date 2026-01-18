@@ -11,7 +11,7 @@ Startar Vite utvecklingsservern för organisation-visualizer.
 
 1. **Kolla port 5173**: Kör `netstat -ano | findstr :5173` för att se om porten är upptagen
    - Om porten är upptagen, fråga användaren om de vill döda processen
-   - Använd `taskkill /PID <pid> /F` för att frigöra porten vid behov
+   - Använd `cmd //c "taskkill /PID <pid> /F"` för att frigöra porten vid behov
 
 ## Starta servern
 

@@ -13,7 +13,7 @@ Startar admin-applikationen för att redigera organisationsstrukturen.
    - `netstat -ano | findstr :3001` (backend)
    - `netstat -ano | findstr :5174` (frontend)
    - Om portarna är upptagna, fråga användaren om de vill döda processerna
-   - Använd `taskkill /PID <pid> /F` för att frigöra portarna vid behov
+   - Använd `cmd //c "taskkill /PID <pid> /F"` för att frigöra portarna vid behov
 
 ## Starta servern
 

@@ -20,7 +20,7 @@ Startar både huvudvisualiseraren och admin-appen.
    - `netstat -ano | findstr :3001` (admin backend)
    - `netstat -ano | findstr :5174` (admin frontend)
    - Om portarna är upptagna, fråga användaren om de vill döda processerna
-   - Använd `taskkill /PID <pid> /F` för att frigöra portarna vid behov
+   - Använd `cmd //c "taskkill /PID <pid> /F"` för att frigöra portarna vid behov
 
 ## Starta servrarna
 
