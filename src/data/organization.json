@@ -117,8 +117,8 @@
           "manager": "Fredrik Wallin",
           "children": [
             {
-              "id": "10003",
-              "name": "Tåg",
+              "id": "taget",
+              "name": "Tåget",
               "type": "enhet",
               "costCenter": "8932",
               "manager": "Nils Propp"
