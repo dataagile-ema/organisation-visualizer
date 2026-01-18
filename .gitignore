@@ -30,3 +30,9 @@ tmpclaude-*
 
 # Backups from admin app
 backups/
+
+# Build cache
+*.tsbuildinfo
+
+# Generated reports
+reports/

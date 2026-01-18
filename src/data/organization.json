@@ -114,14 +114,16 @@
           "name": "Kommunikation & Marknad",
           "type": "stab",
           "costCenter": "1150",
-          "manager": "Fredrik Wallin"
-        },
-        {
-          "id": "11",
-          "name": "Tåg",
-          "type": "enhet",
-          "costCenter": "8932",
-          "manager": "Nils Propp"
+          "manager": "Fredrik Wallin",
+          "children": [
+            {
+              "id": "10003",
+              "name": "Tåg",
+              "type": "enhet",
+              "costCenter": "8932",
+              "manager": "Nils Propp"
+            }
+          ]
         }
       ]
     },
