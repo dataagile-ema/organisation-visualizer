@@ -2,7 +2,7 @@
 export interface OrgUnit {
   id: string;
   name: string;
-  type: 'koncern' | 'division' | 'avdelning' | 'enhet' | 'stab';
+  type: 'koncern' | 'division' | 'avdelning' | 'enhet' | 'stab' | 'sektion';
   costCenter: string;
   manager?: string;
   children?: OrgUnit[];
@@ -26,7 +26,7 @@ export interface ApiError {
 export interface CreateUnitRequest {
   id: string;
   name: string;
-  type: 'division' | 'avdelning' | 'enhet' | 'stab';
+  type: 'division' | 'avdelning' | 'enhet' | 'stab' | 'sektion';
   costCenter: string;
   manager?: string;
 }

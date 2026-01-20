@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, Building2, Users, Briefcase, Shield, Box } from 'lucide-react';
+import { ChevronRight, ChevronDown, Building2, Users, Briefcase, Shield, Box, Layers } from 'lucide-react';
 import type { OrgUnit } from '../../types';
 
 interface OrgTreeEditorProps {
@@ -35,21 +35,8 @@ export function OrgTreeEditor({ organization, onSelectUnit, selectedUnit }: OrgT
         return <Shield className="w-4 h-4" />;
       case 'enhet':
         return <Box className="w-4 h-4" />;
-    }
-  };
-
-  const getTypeColor = (type: OrgUnit['type']) => {
-    switch (type) {
-      case 'koncern':
-        return 'text-blue-600';
-      case 'division':
-        return 'text-emerald-600';
-      case 'avdelning':
-        return 'text-amber-600';
-      case 'stab':
-        return 'text-purple-600';
-      case 'enhet':
-        return 'text-slate-600';
+      case 'sektion':
+        return <Layers className="w-4 h-4" />;
     }
   };
 
@@ -61,10 +48,22 @@ export function OrgTreeEditor({ organization, onSelectUnit, selectedUnit }: OrgT
     return (
       <div key={unit.id}>
         <div
-          className={`flex items-center gap-2 px-2 py-1.5 cursor-pointer rounded hover:bg-slate-100 transition-colors ${
-            isSelected ? 'bg-blue-50 hover:bg-blue-100' : ''
-          }`}
-          style={{ paddingLeft: `${depth * 16 + 8}px` }}
+          className="flex items-center gap-2 px-2 py-2 cursor-pointer transition-colors"
+          style={{
+            paddingLeft: `${depth * 16 + 8}px`,
+            background: isSelected ? 'var(--color-accent-light)' : 'transparent',
+            borderLeft: isSelected ? '3px solid var(--color-accent)' : '3px solid transparent'
+          }}
+          onMouseEnter={(e) => {
+            if (!isSelected) {
+              e.currentTarget.style.background = 'var(--color-section-bg)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isSelected) {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
           onClick={() => onSelectUnit(unit)}
         >
           {hasChildren && (
@@ -73,26 +72,39 @@ export function OrgTreeEditor({ organization, onSelectUnit, selectedUnit }: OrgT
                 e.stopPropagation();
                 toggleNode(unit.id);
               }}
-              className="p-0.5 hover:bg-slate-200 rounded"
+              className="p-0.5 transition-colors"
+              style={{ color: 'var(--color-text-muted)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--color-accent)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--color-text-muted)';
+              }}
             >
               {isExpanded ? (
-                <ChevronDown className="w-4 h-4 text-slate-600" />
+                <ChevronDown className="w-4 h-4" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-slate-600" />
+                <ChevronRight className="w-4 h-4" />
               )}
             </button>
           )}
           {!hasChildren && <div className="w-5" />}
 
-          <div className={getTypeColor(unit.type)}>
+          <div className={`type-${unit.type}`}>
             {getIcon(unit.type)}
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-sm text-slate-800 truncate">
+            <div
+              className="font-medium text-sm truncate"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               {unit.name}
             </div>
-            <div className="text-xs text-slate-500">
+            <div
+              className="text-xs"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
               {unit.costCenter}
             </div>
           </div>

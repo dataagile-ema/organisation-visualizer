@@ -124,6 +124,13 @@
               "manager": "Nils Propp"
             }
           ]
+        },
+        {
+          "id": "id-t",
+          "name": "tooop",
+          "type": "avdelning",
+          "costCenter": "1335",
+          "manager": "Dolly"
         }
       ]
     },

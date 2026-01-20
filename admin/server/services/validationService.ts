@@ -36,7 +36,8 @@ function loadUnitTypes(): UnitTypesConfig {
         types: {
           koncern: { label: 'Koncern', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['division'], allowedAtDepth: [0] },
           division: { label: 'Division', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['avdelning', 'stab', 'enhet'], allowedAtDepth: [1] },
-          avdelning: { label: 'Avdelning', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['enhet'], allowedAtDepth: [2, 3] },
+          avdelning: { label: 'Avdelning', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['enhet', 'sektion'], allowedAtDepth: [2, 3] },
+          sektion: { label: 'Sektion', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['enhet'], allowedAtDepth: [3, 4] },
           stab: { label: 'Stab', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: ['enhet'], allowedAtDepth: [2] },
           enhet: { label: 'Enhet', color: { text: '', bg: '', badgeText: '' }, icon: '', allowedChildren: [], allowedAtDepth: [2, 3, 4] }
         },

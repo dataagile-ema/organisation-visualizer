@@ -52,13 +52,13 @@ export function OrgUnitForm({
 
   const costCenter = watch('costCenter');
 
-  // Hämta tillåtna typer från API
+  // Hamta tillatna typer fran API
   useEffect(() => {
     const fetchAllowedTypes = async () => {
       setTypesLoading(true);
       try {
         if (mode === 'create' && parentUnit) {
-          // Hämta tillåtna barntyper för föräldern
+          // Hamta tillatna barntyper for foraldern
           const response = await fetch(`/api/organization/types/${parentUnit.type}/allowed-children`);
           const data = await response.json();
           if (data.success && data.data) {
@@ -71,7 +71,7 @@ export function OrgUnitForm({
             label: unit?.type ? unit.type.charAt(0).toUpperCase() + unit.type.slice(1) : ''
           }]);
         } else {
-          // Fallback: hämta alla typer
+          // Fallback: hamta alla typer
           const response = await fetch('/api/organization/types');
           const data = await response.json();
           if (data.success && data.data) {
@@ -79,7 +79,7 @@ export function OrgUnitForm({
           }
         }
       } catch (error) {
-        console.error('Kunde inte hämta enhetstyper:', error);
+        console.error('Kunde inte hamta enhetstyper:', error);
         // Fallback till standardtyper
         setAllowedTypes([
           { value: 'division', label: 'Division' },
@@ -95,13 +95,13 @@ export function OrgUnitForm({
     fetchAllowedTypes();
   }, [mode, parentUnit, unit]);
 
-  // Validera costCenter när användaren skriver
+  // Validera costCenter nar anvandaren skriver
   useEffect(() => {
     if (mode === 'create' && costCenter && costCenter.length === 4 && checkCostCenter) {
       const timer = setTimeout(async () => {
         const isAvailable = await checkCostCenter(costCenter);
         if (!isAvailable) {
-          setCostCenterError('Kostnadsställe används redan');
+          setCostCenterError('Kostnadsstalle anvands redan');
         } else {
           setCostCenterError(null);
         }
@@ -134,75 +134,88 @@ export function OrgUnitForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-5">
       <div>
-        <h3 className="text-lg font-semibold text-slate-800 mb-4">
+        <h3 className="text-xl mb-4" style={{ color: 'var(--color-text-primary)' }}>
           {mode === 'create' ? 'Skapa ny enhet' : `Redigera ${unit?.name}`}
         </h3>
         {parentUnit && (
-          <p className="text-sm text-slate-600 mb-4">
-            Under: <span className="font-medium">{parentUnit.name}</span>
+          <p className="mb-4" style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem' }}>
+            Under: <span style={{ color: 'var(--color-accent)', fontWeight: 500 }}>{parentUnit.name}</span>
           </p>
         )}
       </div>
 
       {mode === 'create' && (
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label
+            className="block text-sm font-medium mb-2"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
             ID
           </label>
           <input
             type="text"
             {...register('id', {
-              required: 'ID är obligatoriskt',
+              required: 'ID ar obligatoriskt',
               pattern: {
                 value: /^[a-z0-9-]+$/,
-                message: 'Endast små bokstäver, siffror och bindestreck'
+                message: 'Endast sma bokstaver, siffror och bindestreck'
               }
             })}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input"
             placeholder="t.ex. min-enhet"
           />
           {errors.id && (
-            <p className="text-sm text-red-600 mt-1">{errors.id.message}</p>
+            <p className="text-sm mt-2" style={{ color: 'var(--color-error)' }}>
+              {errors.id.message}
+            </p>
           )}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+        <label
+          className="block text-sm font-medium mb-2"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
           Namn
         </label>
         <input
           type="text"
           {...register('name', {
-            required: 'Namn är obligatoriskt',
+            required: 'Namn ar obligatoriskt',
             maxLength: { value: 100, message: 'Max 100 tecken' }
           })}
-          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
           placeholder="Enhetens namn"
         />
         {errors.name && (
-          <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
+          <p className="text-sm mt-2" style={{ color: 'var(--color-error)' }}>
+            {errors.name.message}
+          </p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+        <label
+          className="block text-sm font-medium mb-2"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
           Typ
         </label>
         <select
-          {...register('type', { required: 'Typ är obligatoriskt' })}
-          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {...register('type', { required: 'Typ ar obligatoriskt' })}
+          className="input"
           disabled={mode === 'edit' || typesLoading}
         >
           {typesLoading ? (
             <option value="">Laddar...</option>
           ) : allowedTypes.length === 0 ? (
-            <option value="">Inga tillåtna typer</option>
+            <option value="">Inga tillatna typer</option>
           ) : (
             <>
-              {mode === 'create' && <option value="">Välj typ...</option>}
+              {mode === 'create' && <option value="">Valj typ...</option>}
               {allowedTypes.map(type => (
                 <option key={type.value} value={type.value}>
                   {type.label}
@@ -212,42 +225,54 @@ export function OrgUnitForm({
           )}
         </select>
         {errors.type && (
-          <p className="text-sm text-red-600 mt-1">{errors.type.message}</p>
+          <p className="text-sm mt-2" style={{ color: 'var(--color-error)' }}>
+            {errors.type.message}
+          </p>
         )}
         {allowedTypes.length === 0 && !typesLoading && (
-          <p className="text-sm text-amber-600 mt-1">
+          <p className="text-sm mt-2" style={{ color: 'var(--color-warning)' }}>
             Denna enhetstyp kan inte ha underenheter
           </p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          Kostnadsställe
+        <label
+          className="block text-sm font-medium mb-2"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          Kostnadsstalle
         </label>
         <input
           type="text"
           {...register('costCenter', {
-            required: 'Kostnadsställe är obligatoriskt',
+            required: 'Kostnadsstalle ar obligatoriskt',
             pattern: {
               value: /^\d{4}$/,
-              message: 'Måste vara 4 siffror'
+              message: 'Maste vara 4 siffror'
             }
           })}
-          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
           placeholder="0000"
           maxLength={4}
         />
         {errors.costCenter && (
-          <p className="text-sm text-red-600 mt-1">{errors.costCenter.message}</p>
+          <p className="text-sm mt-2" style={{ color: 'var(--color-error)' }}>
+            {errors.costCenter.message}
+          </p>
         )}
         {costCenterError && (
-          <p className="text-sm text-red-600 mt-1">{costCenterError}</p>
+          <p className="text-sm mt-2" style={{ color: 'var(--color-error)' }}>
+            {costCenterError}
+          </p>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+        <label
+          className="block text-sm font-medium mb-2"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
           Chef (valfritt)
         </label>
         <input
@@ -255,19 +280,24 @@ export function OrgUnitForm({
           {...register('manager', {
             maxLength: { value: 100, message: 'Max 100 tecken' }
           })}
-          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input"
           placeholder="Chefens namn"
         />
         {errors.manager && (
-          <p className="text-sm text-red-600 mt-1">{errors.manager.message}</p>
+          <p className="text-sm mt-2" style={{ color: 'var(--color-error)' }}>
+            {errors.manager.message}
+          </p>
         )}
       </div>
 
-      <div className="flex gap-2 pt-4 border-t">
+      <div
+        className="flex gap-3 pt-5"
+        style={{ borderTop: '2px solid var(--color-border)' }}
+      >
         <button
           type="submit"
           disabled={isSubmitting || !!costCenterError || (mode === 'create' && allowedTypes.length === 0)}
-          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+          className="btn-primary flex-1"
         >
           {isSubmitting ? 'Sparar...' : mode === 'create' ? 'Skapa' : 'Spara'}
         </button>
@@ -275,7 +305,7 @@ export function OrgUnitForm({
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="px-4 py-2 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 disabled:opacity-50 transition-colors"
+          className="btn-secondary"
         >
           Avbryt
         </button>

@@ -1,5 +1,5 @@
 import type { OrgUnit, UnitTypesConfig } from '../../types';
-import { ChevronRight, ChevronDown, Building, Users, Briefcase, Server, Scale, Megaphone } from 'lucide-react';
+import { ChevronRight, ChevronDown, Building, Users, Briefcase, Server, Scale, Megaphone, Layers } from 'lucide-react';
 import unitTypesConfig from '../../data/unit-types.json';
 
 const config = unitTypesConfig as UnitTypesConfig;
@@ -11,7 +11,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Briefcase,
   Server,
   Scale,
-  Megaphone
+  Megaphone,
+  Layers
 };
 
 // Pre-kompilera regex-mönster vid laddning för bättre prestanda och säkerhet

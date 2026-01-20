@@ -30,8 +30,19 @@
         "badgeText": "text-amber-700"
       },
       "icon": "Users",
-      "allowedChildren": ["enhet"],
+      "allowedChildren": ["enhet", "sektion"],
       "allowedAtDepth": [2, 3]
+    },
+    "sektion": {
+      "label": "Sektion",
+      "color": {
+        "text": "text-indigo-600",
+        "bg": "bg-indigo-100",
+        "badgeText": "text-indigo-700"
+      },
+      "icon": "Layers",
+      "allowedChildren": ["enhet"],
+      "allowedAtDepth": [3, 4]
     },
     "stab": {
       "label": "Stab",
