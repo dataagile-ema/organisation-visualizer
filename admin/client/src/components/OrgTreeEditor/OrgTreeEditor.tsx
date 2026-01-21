@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, Building2, Users, Briefcase, Shield, Box, Layers } from 'lucide-react';
+import { ChevronRight, ChevronDown, Building2, Users, Briefcase, Shield, Box } from 'lucide-react';
 import type { OrgUnit } from '../../types';
 
 interface OrgTreeEditorProps {
@@ -35,8 +35,6 @@ export function OrgTreeEditor({ organization, onSelectUnit, selectedUnit }: OrgT
         return <Shield className="w-4 h-4" />;
       case 'enhet':
         return <Box className="w-4 h-4" />;
-      case 'sektion':
-        return <Layers className="w-4 h-4" />;
     }
   };
 

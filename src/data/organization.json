@@ -118,7 +118,7 @@
           "children": [
             {
               "id": "taget",
-              "name": "Tåget",
+              "name": "Postavdelning",
               "type": "enhet",
               "costCenter": "8932",
               "manager": "Nils Propp"
